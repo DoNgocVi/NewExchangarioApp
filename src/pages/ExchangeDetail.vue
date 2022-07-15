@@ -1,25 +1,25 @@
 <template>
-  <div class="page-wrapper">
+  <div v-if="exchange && exchange.slug" class="page-wrapper">
     <section class="hero is-black">
       <div class="hero-body">
         <div class="hero-img"></div>
         <div class="container">
           <div class="columns">
             <div class="column is-9">
-              <h1 class="title">Some Exchange</h1>
-              <h2 class="subtitle">service</h2>
+              <h1 class="title">{{exchange.title}}</h1>
+              <h2 class="subtitle">{{exchange.type}}</h2>
               <!-- Exchange User Start -->
-              <div class="user-tile">
+              <div v-if="!!exchangeUser" class="user-tile">
                 <div class="user-tile-image">
                   <figure class="image is-64x64">
                     <img
                       class="is-rounded"
-                      src="http://via.placeholder.com/100x100"
+                      :src="exchangeUser.avatar"
                     />
                   </figure>
                 </div>
                 <div class="user-tile-author center">
-                  <h3 class="user-tile-author-name">by Some User</h3>
+                  <h3 class="user-tile-author-name">by {{exchangeUser.username}}</h3>
                 </div>
               </div>
               <!-- Exchange User End -->
@@ -31,7 +31,7 @@
                     <figure class="image is-4by2">
                       <!-- Exchange Image -->
                       <img
-                        src="http://via.placeholder.com/600x600"
+                        :src="exchange.image"
                         alt="Placeholder image"
                       />
                     </figure>
@@ -39,7 +39,7 @@
                   <div class="card-content">
                     <div class="content m-b-sm">
                       <div class="media-content">
-                        <span class="title is-2">$1000 </span>
+                        <span class="title is-2"> {{exchange.price}}$ </span>
                       </div>
                     </div>
                     <button
@@ -69,14 +69,14 @@
           <div class="section">
             <div class="more-details">
               <div class="more-details-title">Details</div>
-              <div class="more-details-item">Country: England</div>
-              <div class="more-details-item">City: London</div>
+              <div class="more-details-item">Country: {{exchange.country}}</div>
+              <div class="more-details-item">City: {{exchange.city}}</div>
             </div>
           </div>
           <div class="section product-description p-t-none">
             <div class="product-description-title">Exchange Info</div>
             <div class="product-description-details">
-              <p>Exchange description information</p>
+              <p>{{exchange.description}}</p>
             </div>
           </div>
         </div>
@@ -85,7 +85,22 @@
   </div>
 </template>
 <script>
-export default {};
+
+export default {
+    created(){
+        // lấy :slug từ trên params
+        const {slug} = this.$route.params
+        this.$store.dispatch("exchange/getExchangeBySlug", slug)
+    },
+    computed:{
+        exchange(){
+            return this.$store.state.exchange.item
+        },
+        exchangeUser(){
+            return this.exchange.user
+        }
+    }
+};
 </script>
 
 <style scoped lang="scss">

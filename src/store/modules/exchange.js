@@ -5,6 +5,8 @@ import {
   doc,
   addDoc,
   collection,
+  where,
+  getDoc
 } from "firebase/firestore";
 import { db } from "../../db";
 import slugify from "slugify";
@@ -13,6 +15,7 @@ export default {
   state() {
     return {
       items: [],
+      item: {}
     };
   },
 
@@ -41,11 +44,30 @@ export default {
       });
       onSuccess();
     },
+    // get exchange by slug
+    async getExchangeBySlug({commit, state}, slug){
+      state.item = {}
+      const docQuery = query(
+        collection(db, "exchanges"),
+        where("slug", "==", slug)
+      )
+      const querySnap = await getDocs(docQuery)
+      const exchange = querySnap.docs[0].data()
+
+      const userSnap = await getDoc(exchange.user)
+      exchange.user = userSnap.data()
+      exchange.user.id = userSnap.id
+      commit('setExchange', exchange)
+    }
   },
 
   mutations: {
     setExchanges(state, exchanges) {
       state.items = exchanges;
     },
+    setExchange(state, exchange) {
+      state.item = exchange;
+    },
+
   },
 };
