@@ -12,7 +12,10 @@ export default {
   props: {
     errors: {
       type: Array,
-      required: true
+      required: true, 
+      default: function () {
+        return []
+      }
     }
   }
 };

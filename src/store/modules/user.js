@@ -103,6 +103,7 @@ export default {
         dispatch("toast/error", e.message, { root: true });
       } finally {
         commit("setAuthIsProcessing", false);
+
       }
     },
 
@@ -128,7 +129,6 @@ export default {
       state.auth.error = error;
     },
     setUser(state, user) {
-      // console.log(user);
       state.data = user;
       console.log(state.data);
     },

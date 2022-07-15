@@ -95,7 +95,19 @@
           <div class="field">
             <label class="label">Tags</label>
             <div class="control">
-              <input class="input" type="text" placeholder="programming" />
+              <input
+                @input="handleTags"
+                class="input"
+                type="text"
+                placeholder="programming"
+              />
+              <div
+                v-for="tag in form.tags"
+                :key="tag"
+                class="tag is-primary is-medium"
+              >
+                {{ tag }}
+              </div>
             </div>
           </div>
 
@@ -124,7 +136,20 @@ import {
   minValue,
   helpers,
 } from "@vuelidate/validators";
+
 import FormError from "../components/FormError.vue";
+// import { supportedFileType } from "../helpers/validators";
+
+const setupInitialData = () => ({
+  title: "",
+  description: "",
+  type: "product",
+  image: "",
+  price: null,
+  country: "",
+  city: "",
+  tags: []
+});
 
 export default {
   components: {
@@ -132,20 +157,12 @@ export default {
   },
   data() {
     return {
-      form: {
-        title: "",
-        description: "",
-        type: "product",
-        image: "",
-        price: null,
-        country: "",
-        city: "",
-        tags: [],
-      },
+      form: setupInitialData(),
     };
   },
   validations() {
     return {
+      // kiểm tra và trả về một list những lỗi
       form: {
         // required = required
         title: {
@@ -157,7 +174,14 @@ export default {
         },
         description: { required },
         type: { required },
-        image: { required, url },
+        image: {
+          required,
+          url,
+          // supportedFileType: helpers.withMessage(
+          //   "Invalid format",
+          //   supportedFileType
+          // ),
+        },
         price: { required, minValue: minValue(50) },
         country: { required },
         city: { required },
@@ -171,8 +195,32 @@ export default {
   methods: {
     async createExchange() {
       const isValid = await this.v$.$validate();
-      console.log(isValid);
-      alert(JSON.stringify(this.form));
+      if (isValid) {
+        this.v$.$reset()
+        this.$store.dispatch("exchange/createExchange", {
+          data: this.form,
+          onSuccess: () => {
+            this.form = setupInitialData()
+          },
+        });
+      }
+    },
+    handleTags(event) {
+      const { value } = event.target;
+      // xử lý value khi có dấu cách hoặc dầu phẩy thì lấy ra dữ liệu và set value lại thành rỗng
+      if (
+        value.trim().length > 0 &&
+        (value.substr(-1) === "," || value.substr(-1) === " ")
+      ) {
+        const _value = value.split(",")[0];
+        console.log(_value);
+        if (this.form.tags.includes(_value) === false) {
+          this.form.tags.push(_value);
+        }
+
+        console.log(this.form.tags);
+        event.target.value = "";
+      }
     },
   },
 };

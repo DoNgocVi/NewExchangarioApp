@@ -8,7 +8,8 @@
           :key="exchange.id"
           class="column is-12-mobile is-6-tablet is-4-widescreen is-6-desktop">
           <div class="item post-card bottom-border">
-            <a class="item-link" href="#">
+            <!-- name trong router params chính là :id -->
+            <router-link class="item-link" href="#" :to="{name: 'ExchangeDetail', params:{slug: exchange.slug}}">
               <figure
                 class="image is-2by1 item-figure background-img"
                 :style="{ 'background-image': `url(${exchange.image})` }"
@@ -22,7 +23,7 @@
                   />
                 </div>
               </div>
-            </a>
+            </router-link>
             <div class="item-tags">
               <a
                 v-for="tag in exchange.tags"
@@ -38,7 +39,7 @@
             </h2>
             <div class="level">
               <div class="level-left">
-                <div class="item-author">{{exchange.user}}</div>
+                <div class="item-author">{{exchange.user.id}}</div>
               </div>
               <div class="level-right">
                 27th December 2019

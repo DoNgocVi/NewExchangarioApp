@@ -14,9 +14,7 @@
                   placeholder="Email"
                   autocomplete="email"
                 />
-                <div class="form-error">
-                  <div class="help is-danger">Invalid Value</div>
-                </div>
+                <form-error :errors="v$.form.email.$errors" />
               </div>
             </div>
             <div class="field">
@@ -27,6 +25,7 @@
                   type="text"
                   placeholder="Username"
                 />
+                <form-error :errors="v$.form.username.$errors" />
               </div>
             </div>
             <div class="field">
@@ -38,6 +37,7 @@
                   placeholder="Password"
                   autocomplete="current-password"
                 />
+                <form-error :errors="v$.form.password.$errors" />
               </div>
             </div>
             <div class="field">
@@ -48,6 +48,7 @@
                   type="password"
                   placeholder="Repeat the password"
                 />
+                <form-error :errors="v$.form.passwordConfirmation.$errors" />
               </div>
             </div>
             <button
@@ -69,8 +70,15 @@
   </div>
 </template>
 <script>
+import useVuelidate from "@vuelidate/core";
+import { required, email, sameAs, helpers } from "@vuelidate/validators";
+import FormError from "../components/FormError.vue";
 import useAuth from "../composition/useAuth";
 export default {
+  components: {
+    FormError,
+  },
+
   data() {
     return {
       form: {
@@ -90,19 +98,42 @@ export default {
   //     return this.$store.state.user.register.isProcessing;
   //   },
   // },
-  setup() {
-    return useAuth();
+  validations() {
+    return {
+      form: {
+        email: { required, email },
+        username: { required },
+        password: { required },
+        passwordConfirmation: {
+          required,
+          sameAs: helpers.withMessage(
+            "Must be same as the password",
+            sameAs(this.form.password)
+          ),
+        },
+      },
+      
+    };
   },
- watch:{
-    isAuthenticated(isAuth){
-       if(isAuth){
-        this.$router.push("/")
-       }
-    }
+  setup() {
+    return {
+      ...useAuth(),
+      v$: useVuelidate(),
+    };
+  },
+  watch: {
+    isAuthenticated(isAuth) {
+      if (isAuth) {
+        this.$router.push("/");
+      }
+    },
   },
   methods: {
-    register() {
-      this.$store.dispatch("user/register", this.form);
+    async register() {
+      const isValid = await this.v$.$validate();
+      if (isValid) {
+        this.$store.dispatch("user/register", this.form);
+      }
     },
   },
 };
