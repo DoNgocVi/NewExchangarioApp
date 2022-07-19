@@ -5,7 +5,16 @@ import {
   signOut,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../../db";
 export default {
   namespaced: true,
@@ -58,10 +67,18 @@ export default {
       const docSnap = await getDoc(docRef);
       // real data
       const userProfile = docSnap.data();
+
+      const docQuery = query(
+        collection(db, "exchanges"),
+        where("user", "==", docRef)
+      );
+      const querySnap = await getDocs(docQuery);
+      const exchanges = querySnap.docs.map((doc) => doc.data());
       const useWithProfile = {
         id: user.uid,
         email: user.email,
         ...userProfile,
+        exchanges,
       };
       commit("setUser", useWithProfile);
     },
@@ -103,7 +120,6 @@ export default {
         dispatch("toast/error", e.message, { root: true });
       } finally {
         commit("setAuthIsProcessing", false);
-
       }
     },
 

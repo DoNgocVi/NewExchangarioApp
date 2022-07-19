@@ -210,6 +210,9 @@ export default {
       // xử lý value khi có dấu cách hoặc dầu phẩy thì lấy ra dữ liệu và set value lại thành rỗng
       if (
         value.trim().length > 0 &&
+        // method substr dùng để trích xuất chuỗi
+        // substr(start, length) -1 là trích xuất từ cuối dãy string
+        // code ở dưới có nghĩa là ký tự cuối mà là "," hoặc "trống" thì là đúng
         (value.substr(-1) === "," || value.substr(-1) === " ")
       ) {
         const _value = value.split(",")[0];
